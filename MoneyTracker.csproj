@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>MoneyTracker</RootNamespace>
+    <AssemblyName>MoneyTracker</AssemblyName>
+    <Version>1.0.0</Version>
+    <Product>记账本</Product>
+    <AssemblyTitle>记账本 · 桌面版</AssemblyTitle>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+  </PropertyGroup>
+
+</Project>

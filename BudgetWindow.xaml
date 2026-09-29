@@ -1,0 +1,41 @@
+<Window x:Class="MoneyTracker.BudgetWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="预算" Height="320" Width="420"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{DynamicResource BgBrush}" FontFamily="{DynamicResource UiFont}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="txtHeader" Grid.Row="0" Style="{StaticResource H1}" Margin="0,0,0,16"/>
+
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="预算范围" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+            <ComboBox x:Name="cmbScope" Margin="0,0,0,14"/>
+
+            <TextBlock Text="每月上限（元）" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+            <TextBox x:Name="txtAmount" FontFamily="{StaticResource NumFont}" FontSize="15"/>
+            <TextBlock x:Name="txtAmountHint" Style="{StaticResource Muted}" Margin="0,6,0,14"
+                       Text="比如 3000 就是每月最多花 3000 元"/>
+
+            <TextBlock Text="用到多少开始提醒" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+            <ComboBox x:Name="cmbAlert">
+                <ComboBoxItem Content="50% 就提醒"/>
+                <ComboBoxItem Content="70% 就提醒"/>
+                <ComboBoxItem Content="80% 就提醒（推荐）"/>
+                <ComboBoxItem Content="90% 就提醒"/>
+                <ComboBoxItem Content="不提醒"/>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Style="{StaticResource Btn}" Content="取消" Padding="20,9" Click="Cancel_Click"/>
+            <Button Style="{StaticResource BtnPrimary}" Content="保存" Padding="24,9" Margin="10,0,0,0"
+                    Click="Ok_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

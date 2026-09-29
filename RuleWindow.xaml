@@ -1,0 +1,59 @@
+<Window x:Class="MoneyTracker.RuleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="自动记账规则" Height="480" Width="500"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{DynamicResource BgBrush}" FontFamily="{DynamicResource UiFont}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="txtHeader" Grid.Row="0" Style="{StaticResource H1}" Margin="0,0,0,14"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="关键词" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+                <TextBox x:Name="txtKeyword"/>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,14" TextWrapping="Wrap"
+                           Text="多个关键词用竖线分隔，比如：美团|饿了么|外卖。只要商户名或备注里出现任意一个就算命中。"/>
+
+                <TextBlock Text="在哪儿找这些词" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+                <ComboBox x:Name="cmbField" Margin="0,0,0,14">
+                    <ComboBoxItem Content="商户名和备注都找（推荐）"/>
+                    <ComboBoxItem Content="只在商户名里找"/>
+                    <ComboBoxItem Content="只在备注里找"/>
+                </ComboBox>
+
+                <TextBlock Text="命中后归到哪个分类" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+                <ComboBox x:Name="cmbCat" SelectionChanged="Cat_Changed" Margin="0,0,0,12"/>
+
+                <StackPanel x:Name="boxSub" Margin="0,0,0,12">
+                    <TextBlock Text="子分类（可以不选）" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="cmbSub"/>
+                </StackPanel>
+
+                <TextBlock Text="金额方向" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+                <ComboBox x:Name="cmbType" Margin="0,0,0,12">
+                    <ComboBoxItem Content="不改变（按账单里的收/支）"/>
+                    <ComboBoxItem Content="当成支出"/>
+                    <ComboBoxItem Content="当成收入"/>
+                </ComboBox>
+
+                <TextBlock Text="优先级" Style="{StaticResource Muted}" Margin="0,0,0,5"/>
+                <TextBox x:Name="txtPriority" FontFamily="{StaticResource NumFont}"/>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,8" TextWrapping="Wrap"
+                           Text="数字越大越优先，0~100。同一个商户被多条规则命中时，优先级高的说了算。"/>
+                <CheckBox x:Name="chkEnabled" Content="启用这条规则"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Style="{StaticResource Btn}" Content="取消" Padding="20,9" Click="Cancel_Click"/>
+            <Button Style="{StaticResource BtnPrimary}" Content="保存" Padding="24,9" Margin="10,0,0,0"
+                    Click="Ok_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,134 @@
+<Window x:Class="MoneyTracker.BackupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="备份与回档" Height="620" Width="700"
+        MinHeight="520" MinWidth="600"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
+        Background="{DynamicResource BgBrush}" FontFamily="{DynamicResource UiFont}"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+
+    <!-- 最外层用 Border 兜底背景色：离屏出图（自检）时也能整块画出来 -->
+    <Border x:Name="root" Background="{DynamicResource BgBrush}" Padding="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ==================== 标题 ==================== -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                <TextBlock Text="备份与回档" Style="{StaticResource H1}"/>
+                <TextBlock Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,6,0,0"
+                           Text="程序会自己把数据留成快照，出错了随时退回某一个时间点。回档之前会再把当前状态存一份，所以退错了也能反悔。"/>
+            </StackPanel>
+
+            <!-- ==================== 立即备份 ==================== -->
+            <Border Grid.Row="1" Style="{StaticResource Card}" Padding="14,12" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="btnSnap" Grid.Column="0" Style="{StaticResource BtnPrimary}"
+                            Content="立即备份" Padding="18,9" VerticalAlignment="Center" Click="Snap_Click"/>
+
+                    <StackPanel Grid.Column="1" Margin="14,0,10,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="txtNow" Style="{StaticResource Body}"/>
+                        <TextBlock x:Name="txtDir" Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="2" Style="{StaticResource Btn}" Content="打开备份文件夹"
+                            Padding="14,8" VerticalAlignment="Center" Click="OpenFolder_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- ==================== 一行即时反馈 ==================== -->
+            <TextBlock x:Name="txtTip" Grid.Row="2" Style="{StaticResource Muted}" TextWrapping="Wrap"
+                       Margin="2,0,0,10" Visibility="Collapsed"/>
+
+            <!-- ==================== 快照列表 ==================== -->
+            <Border Grid.Row="3" Style="{StaticResource Card}" Padding="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="14,10,14,8">
+                        <TextBlock x:Name="txtCount" Style="{StaticResource H2}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                   Text="越上面的越新"/>
+                    </Grid>
+
+                    <ListBox x:Name="lst" Grid.Row="1" ItemContainerStyle="{StaticResource RowItem}"
+                             Background="Transparent" BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="10,9">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding TimeText}" FontFamily="{StaticResource NumFont}"
+                                                   FontSize="13.5" Foreground="{DynamicResource TextBrush}"/>
+                                        <TextBlock Text="{Binding ReasonText}" Style="{StaticResource Muted}"
+                                                   Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center"
+                                                MinWidth="96" Margin="10,0,14,0">
+                                        <TextBlock Text="{Binding CountText}" Style="{StaticResource Muted}"
+                                                   TextAlignment="Right"/>
+                                        <TextBlock Text="{Binding SizeText}" Style="{StaticResource Muted}"
+                                                   TextAlignment="Right" Margin="0,3,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource Btn}" Content="回档到这个" Padding="12,7"
+                                                Click="Restore_Click"/>
+                                        <Button Style="{StaticResource BtnDanger}" Content="删除" Padding="12,7"
+                                                Margin="8,0,0,0" Click="Delete_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <TextBlock x:Name="txtEmpty" Grid.Row="1" Style="{StaticResource Muted}" TextWrapping="Wrap"
+                               MaxWidth="380" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               TextAlignment="Center"
+                               Text="还没有快照。点上面的「立即备份」，先把现在的样子记下来。"/>
+                </Grid>
+            </Border>
+
+            <!-- ==================== 清理 ==================== -->
+            <Grid Grid.Row="4" Margin="2,12,2,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="只保留最近" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                    <TextBox x:Name="txtKeep" Width="56" Margin="8,0,8,0" TextAlignment="Center"
+                             FontFamily="{StaticResource NumFont}"/>
+                    <TextBlock Text="个快照" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                    <Button x:Name="btnPrune" Style="{StaticResource Btn}" Content="清理旧的"
+                            Padding="14,8" Margin="14,0,0,0" Click="Prune_Click"/>
+                    <TextBlock Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0"
+                               Text="（快照攒太多会占地方）"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ==================== 底部 ==================== -->
+            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                <Button Style="{StaticResource BtnPrimary}" Content="关闭" Padding="24,9" Click="Close_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,136 @@
+<Window x:Class="MoneyTracker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:MoneyTracker"
+        Title="记账本" Height="780" Width="1200"
+        MinHeight="620" MinWidth="980"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}"
+        FontFamily="{DynamicResource UiFont}"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
+
+    <Grid Background="{DynamicResource BgBrush}">
+        <!-- 自定义背景图：铺在最底下，先模糊再盖一层跟主题同色的薄纱，
+             这样不管什么图都不会抢文字的可读性。没用背景图时整个折叠掉，零开销。
+             注意最外层这块 Grid 自己要有背景色：离屏渲染时窗口背景是不参与的，
+             少了它截图会出现一条一条的透明白带。 -->
+        <Image x:Name="BgImage" Stretch="UniformToFill" Visibility="Collapsed"
+               RenderOptions.BitmapScalingMode="LowQuality">
+            <Image.Effect>
+                <BlurEffect x:Name="BgBlur" Radius="18" KernelType="Gaussian"/>
+            </Image.Effect>
+        </Image>
+        <Border x:Name="BgVeil" Visibility="Collapsed" Background="{DynamicResource BgBrush}"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="216"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ==================== 侧边栏 ==================== -->
+            <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource BorderBrush2}" BorderThickness="0,0,1,0">
+            <DockPanel>
+
+                <StackPanel DockPanel.Dock="Top" Margin="0,18,0,10">
+                    <StackPanel Orientation="Horizontal" Margin="20,0,0,16">
+                        <Border Width="30" Height="30" CornerRadius="8" Background="{DynamicResource AccentBrush}">
+                            <TextBlock Text="¥" Foreground="{DynamicResource OnAccentBrush}"
+                                       FontSize="17" FontWeight="Bold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="记账本" FontSize="16"
+                                       Foreground="{DynamicResource TextBrush}"/>
+                            <TextBlock Text="桌面版" FontSize="10.5" Foreground="{DynamicResource SubBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- ==================== 当前账本（谁在看谁） ====================
+                         多人共用一个程序，这块就是"现在是谁的账本"：点一下就切过去，
+                         切换走 Store.RaiseChanged，所有页面立刻按新账本重算。 -->
+                    <StackPanel Margin="14,0,14,14">
+                        <Grid Margin="6,0,6,6">
+                            <TextBlock Text="账本" Style="{StaticResource Muted}"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,-3,0,0">
+                                <Button Content="盈亏对比" Style="{StaticResource BtnGhost}"
+                                        Padding="6,1" FontSize="11" Click="Compare_Click"/>
+                                <Button Content="管理" Style="{StaticResource BtnGhost}"
+                                        Padding="6,1" FontSize="11" Margin="2,0,0,0" Click="ManageLedgers_Click"/>
+                            </StackPanel>
+                        </Grid>
+                        <Border Background="{DynamicResource Surface2Brush}"
+                                BorderBrush="{DynamicResource BorderBrush2}" BorderThickness="1"
+                                CornerRadius="{StaticResource BtnRadius}" Padding="4">
+                            <ScrollViewer x:Name="scrollLedgers" MaxHeight="176"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel x:Name="listLedgers"/>
+                            </ScrollViewer>
+                        </Border>
+                        <Button x:Name="btnAddLedger" Content="＋ 新建账本" Style="{StaticResource BtnGhost}"
+                                HorizontalAlignment="Left" Padding="8,4" FontSize="11.5" Margin="2,4,0,0"
+                                Click="AddLedger_Click"/>
+                    </StackPanel>
+
+                    <RadioButton x:Name="navRecord" GroupName="nav" Style="{StaticResource NavItem}"
+                                 local:Nav.Icon="✎" Content="记账" IsChecked="True" Click="Nav_Click" Tag="record"/>
+                    <RadioButton x:Name="navList" GroupName="nav" Style="{StaticResource NavItem}"
+                                 local:Nav.Icon="☰" Content="明细" Click="Nav_Click" Tag="list"/>
+                    <RadioButton x:Name="navReport" GroupName="nav" Style="{StaticResource NavItem}"
+                                 local:Nav.Icon="◔" Content="报表" Click="Nav_Click" Tag="report"/>
+                    <RadioButton x:Name="navBudget" GroupName="nav" Style="{StaticResource NavItem}"
+                                 local:Nav.Icon="◑" Content="预算" Click="Nav_Click" Tag="budget"/>
+                    <RadioButton x:Name="navAnalysis" GroupName="nav" Style="{StaticResource NavItem}"
+                                 local:Nav.Icon="✦" Content="分析" Click="Nav_Click" Tag="analysis"/>
+                    <RadioButton x:Name="navSettings" GroupName="nav" Style="{StaticResource NavItem}"
+                                 local:Nav.Icon="⚙" Content="设置" Click="Nav_Click" Tag="settings"/>
+                </StackPanel>
+
+                <!-- 底部：主题快切 + 状态 -->
+                <StackPanel DockPanel.Dock="Bottom" Margin="14,0,14,14">
+                    <Border Style="{StaticResource Divider}"/>
+
+                    <TextBlock Text="界面主题" Style="{StaticResource Muted}" Margin="6,4,0,6"/>
+                    <ComboBox x:Name="cmbTheme" SelectionChanged="Theme_Changed"/>
+                    <TextBlock x:Name="txtStore" Style="{StaticResource Muted}" Margin="6,10,0,0"
+                               TextWrapping="Wrap" FontSize="11"/>
+                </StackPanel>
+
+                <Grid/>
+            </DockPanel>
+        </Border>
+
+        <!-- ==================== 内容区 ==================== -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 顶上一条细状态栏。用卡片色铺实：这块没有卡片包着，
+                 铺了背景图之后文字会直接压在图上读不清，必须自己有个底。 -->
+            <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource BorderBrush2}" BorderThickness="0,0,0,1"
+                    Padding="22,14,22,14">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="txtTitle" Style="{StaticResource H1}" Text="记账"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock x:Name="txtSubtitle" Style="{StaticResource Muted}"
+                                   VerticalAlignment="Center" Margin="12,4,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock x:Name="txtNet" Style="{StaticResource Money}" FontSize="15"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <ContentControl x:Name="Host" Grid.Row="1" Margin="0"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

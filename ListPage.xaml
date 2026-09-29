@@ -1,0 +1,188 @@
+<UserControl x:Class="MoneyTracker.ListPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource UiFont}" Background="{DynamicResource BgSoftBrush}">
+    <Grid Margin="22,16,22,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ==================== 筛选 + 导出 ==================== -->
+        <Border Grid.Row="0" Style="{StaticResource Card}" Padding="14,12" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <!-- 第一行：筛选条件 -->
+                    <WrapPanel>
+                        <StackPanel Margin="0,0,10,8">
+                            <TextBlock Text="月份" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="cmbMonth" Width="128" SelectionChanged="Filter_Changed"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,10,8">
+                            <TextBlock Text="类型" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="cmbType" Width="92" SelectionChanged="Filter_Changed">
+                                <ComboBoxItem Content="全部"/>
+                                <ComboBoxItem Content="支出"/>
+                                <ComboBoxItem Content="收入"/>
+                                <ComboBoxItem Content="转账"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,10,8">
+                            <TextBlock Text="分类" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="cmbCat" Width="124" SelectionChanged="Cat_Changed"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,10,8">
+                            <TextBlock Text="二级分类" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="cmbSub" Width="124" SelectionChanged="Filter_Changed"
+                                      ToolTip="先选一级分类，这里就只列它下面的二级分类"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,10,8">
+                            <TextBlock Text="账户" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="cmbAcc" Width="118" SelectionChanged="Filter_Changed"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,10,8">
+                            <TextBlock Text="垫付" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="cmbAdvance" Width="108" SelectionChanged="Filter_Changed"
+                                      ToolTip="垫付 = 替别人先付、对方该还我的钱">
+                                <ComboBoxItem Content="全部"/>
+                                <ComboBoxItem Content="只看垫付"/>
+                                <ComboBoxItem Content="只看未还"/>
+                                <ComboBoxItem Content="只看已还"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,10,8">
+                            <TextBlock Text="关键词" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                            <TextBox x:Name="txtKey" Width="180" TextChanged="Filter_Changed"
+                                     ToolTip="商户、备注、分类、标签都能搜"/>
+                        </StackPanel>
+                        <Button Style="{StaticResource Btn}" Content="重置" Margin="0,20,0,8"
+                                Click="Reset_Click"/>
+                        <Button Style="{StaticResource Btn}" Content="只看本月" Margin="8,20,0,8"
+                                Click="ThisMonth_Click"/>
+                    </WrapPanel>
+
+                    <!-- 第二行：导出（放在最显眼的位置，一眼就能找到） -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="导出" Style="{StaticResource H2}" VerticalAlignment="Center"
+                                   Margin="0,0,12,0"/>
+                        <Button x:Name="btnXlsx" Style="{StaticResource BtnPrimary}" Content="导出 Excel"
+                                Padding="16,8" Click="ExportXlsx_Click"/>
+                        <Button x:Name="btnDocx" Style="{StaticResource Btn}" Content="导出 Word"
+                                Padding="16,8" Margin="8,0,0,0" Click="ExportDocx_Click"/>
+                        <Button x:Name="btnCsv" Style="{StaticResource Btn}" Content="导出 CSV"
+                                Padding="16,8" Margin="8,0,0,0" Click="ExportCsv_Click"/>
+                        <Button x:Name="btnJson" Style="{StaticResource Btn}" Content="整库备份 JSON"
+                                Padding="16,8" Margin="8,0,0,0" Click="ExportJson_Click"/>
+                        <TextBlock x:Name="txtExportTip" Style="{StaticResource Muted}"
+                                   VerticalAlignment="Center" Margin="12,0,0,0"
+                                   Text="导出的就是你上面筛出来的这些记录"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 右侧汇总 -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">
+                    <Border Background="{DynamicResource Surface2Brush}" CornerRadius="8" Padding="14,10"
+                            MinWidth="110">
+                        <StackPanel>
+                            <TextBlock Text="支出" Style="{StaticResource Muted}"/>
+                            <TextBlock x:Name="txtSumOut" Style="{StaticResource Money}" FontSize="17"
+                                       Foreground="{DynamicResource ExpenseBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource Surface2Brush}" CornerRadius="8" Padding="14,10"
+                            MinWidth="110" Margin="8,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="收入" Style="{StaticResource Muted}"/>
+                            <TextBlock x:Name="txtSumIn" Style="{StaticResource Money}" FontSize="17"
+                                       Foreground="{DynamicResource IncomeBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource Surface2Brush}" CornerRadius="8" Padding="14,10"
+                            MinWidth="120" Margin="8,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="结余" Style="{StaticResource Muted}"/>
+                            <TextBlock x:Name="txtSumNet" Style="{StaticResource Money}" FontSize="17"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource Surface2Brush}" CornerRadius="8" Padding="14,10"
+                            MinWidth="124" Margin="8,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="垫付未还" Style="{StaticResource Muted}"/>
+                            <TextBlock x:Name="txtSumDebt" Style="{StaticResource Money}" FontSize="17"
+                                       Foreground="{DynamicResource ExpenseBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== 操作条 ==================== -->
+        <Grid Grid.Row="1" Margin="0,0,0,8">
+            <TextBlock x:Name="txtCount" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Text="双击一行可以改，右键有更多操作" Style="{StaticResource Muted}"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Button Style="{StaticResource Btn}" Content="账户分组 / 谁欠我" Padding="14,7"
+                        Margin="0,0,8,0" Click="OpenAccounts_Click"
+                        ToolTip="按分组看账户，还有「谁欠我多少钱」"/>
+                <Button x:Name="btnDelSel" Style="{StaticResource BtnDanger}" Content="删除选中"
+                        Click="DeleteSelected_Click" IsEnabled="False"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ==================== 表格 ==================== -->
+        <Border Grid.Row="2" Style="{StaticResource Card}" Padding="2">
+            <DataGrid x:Name="grid" SelectionChanged="Grid_SelectionChanged"
+                      MouseDoubleClick="Grid_DoubleClick">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="编辑这一笔" Click="MenuEdit_Click"/>
+                        <MenuItem Header="复制为新的一笔" Click="MenuCopy_Click"/>
+                        <MenuItem Header="删除" Click="MenuDelete_Click"/>
+                        <Separator/>
+                        <MenuItem Header="标记为已还（对方还了）" Click="MenuReimbursed_Click"/>
+                        <MenuItem Header="取消已还标记" Click="MenuUnreimbursed_Click"/>
+                        <Separator/>
+                        <MenuItem Header="把它设为规则模板（记住这个分类）" Click="MenuRule_Click"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="日期" Binding="{Binding Date}" Width="104"/>
+                    <DataGridTextColumn Header="类型" Binding="{Binding TypeText}" Width="56"/>
+                    <DataGridTemplateColumn Header="金额" Width="114">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding AmountText}" Foreground="{Binding AmountBrush}"
+                                           FontFamily="{StaticResource NumFont}" FontSize="13"
+                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="分类" Binding="{Binding Category}" Width="112"/>
+                    <DataGridTextColumn Header="二级分类" Binding="{Binding Sub}" Width="104"/>
+                    <DataGridTextColumn Header="账户" Binding="{Binding Account}" Width="120"/>
+                    <DataGridTemplateColumn Header="垫付" Width="116">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Advance}" Foreground="{Binding AdvanceBrush}"
+                                           FontSize="12" VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding AdvanceTip}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="商户 / 对方" Binding="{Binding Merchant}" Width="176"/>
+                    <DataGridTextColumn Header="备注" Binding="{Binding Note}" Width="160"/>
+                    <DataGridTextColumn Header="来源" Binding="{Binding SourceText}" Width="56"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>
