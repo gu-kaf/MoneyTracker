@@ -1,0 +1,26 @@
+<Application x:Class="MoneyTracker.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--
+                所有窗口统一走平滑字形渲染。
+                WPF 默认的 Display 模式会把每个字硬对齐到像素格，中文字形粗细不匀，
+                看着就「硬」；换成 Ideal 之后按理想字形缩放，笔画顺很多。
+
+                渲染模式用 Grayscale 而不是 ClearType：ClearType 靠次像素取巧，
+                小字号下字边缘会带彩色毛边，笔画显得扎手，这正是「字体硬」的主要来源。
+                灰度抗锯齿会稍微糊那么一点点，但字面干净、看着温和，长时间看更舒服。
+            -->
+            <Style TargetType="Window">
+                <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+                <Setter Property="TextOptions.TextRenderingMode" Value="Grayscale"/>
+                <Setter Property="UseLayoutRounding" Value="True"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

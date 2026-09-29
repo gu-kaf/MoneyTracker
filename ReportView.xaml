@@ -1,0 +1,190 @@
+<UserControl x:Class="MoneyTracker.ReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:MoneyTracker"
+             FontFamily="{DynamicResource UiFont}" Background="{DynamicResource BgSoftBrush}">
+    <Grid Margin="22,16,22,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ==================== 工具栏 ==================== -->
+        <Border Grid.Row="0" Style="{StaticResource Card}" Padding="14,12" Margin="0,0,0,12">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Margin="0,0,10,0">
+                        <TextBlock Text="统计范围" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="cmbScope" Width="150" SelectionChanged="Scope_Changed">
+                            <ComboBoxItem Content="本月"/>
+                            <ComboBoxItem Content="近 3 个月"/>
+                            <ComboBoxItem Content="近 6 个月"/>
+                            <ComboBoxItem Content="今年"/>
+                            <ComboBoxItem Content="全部时间"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,10,0">
+                        <TextBlock Text="或指定月份" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="cmbMonth" Width="130" SelectionChanged="Month_Changed"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,20,0,0">
+                        <Button Style="{StaticResource Btn}" Content="刷新" Click="Refresh_Click"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <TextBlock Text="导出报表" Style="{StaticResource H2}" VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <Button Style="{StaticResource BtnPrimary}" Content="导出 Excel" Padding="16,8"
+                            Click="ExportXlsx_Click"/>
+                    <Button Style="{StaticResource Btn}" Content="导出 Word" Padding="16,8" Margin="8,0,0,0"
+                            Click="ExportDocx_Click"/>
+                    <Button Style="{StaticResource Btn}" Content="导出 CSV" Padding="16,8" Margin="8,0,0,0"
+                            Click="ExportCsv_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== 报表内容 ==================== -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+
+                <!-- 概览 -->
+                <UniformGrid Rows="1" Columns="4" Margin="0,0,0,12">
+                    <Border Style="{StaticResource Card}" Margin="0,0,6,0">
+                        <StackPanel>
+                            <TextBlock Text="支出" Style="{StaticResource Muted}"/>
+                            <TextBlock x:Name="txtOut" Style="{StaticResource Money}" FontSize="24"
+                                       FontWeight="SemiBold" Foreground="{DynamicResource ExpenseBrush}"
+                                       Margin="0,4,0,0"/>
+                            <TextBlock x:Name="txtOutSub" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="6,0,6,0">
+                        <StackPanel>
+                            <TextBlock Text="收入" Style="{StaticResource Muted}"/>
+                            <TextBlock x:Name="txtIn" Style="{StaticResource Money}" FontSize="24"
+                                       FontWeight="SemiBold" Foreground="{DynamicResource IncomeBrush}"
+                                       Margin="0,4,0,0"/>
+                            <TextBlock x:Name="txtInSub" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="6,0,6,0">
+                        <StackPanel>
+                            <TextBlock Text="结余" Style="{StaticResource Muted}"/>
+                            <TextBlock x:Name="txtNet" Style="{StaticResource Money}" FontSize="24"
+                                       FontWeight="SemiBold" Margin="0,4,0,0"/>
+                            <TextBlock x:Name="txtNetSub" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="6,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="日均支出" Style="{StaticResource Muted}"/>
+                            <TextBlock x:Name="txtAvg" Style="{StaticResource Money}" FontSize="24"
+                                       FontWeight="SemiBold" Margin="0,4,0,0"/>
+                            <TextBlock x:Name="txtAvgSub" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- ==================== 各账本盈亏比较 ====================
+                     多人共用一个程序时最想要的一张卡：谁挣了多少、花了多少、剩下多少，
+                     一眼横向摆在一起。点某一行就直接切到那个账本。 -->
+                <Border x:Name="cardCompare" Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="各账本盈亏比较" Style="{StaticResource H2}"/>
+                                <TextBlock x:Name="txtCompareRange" Style="{StaticResource Muted}"
+                                           VerticalAlignment="Center" Margin="10,2,0,0"/>
+                            </StackPanel>
+                            <TextBlock x:Name="txtCompareHint" Style="{StaticResource Muted}"
+                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <ItemsControl x:Name="listCompare"/>
+
+                        <Border Style="{StaticResource Divider}" Margin="0,2,0,8"/>
+                        <!-- 合计行。这里必须显式写成星号列：Grid 不写列定义时是 Auto 列，
+                         而 Auto 列只按内容量宽度、不会撑满，右对齐的数字会被挤出边界裁掉。 -->
+                        <Grid x:Name="rowCompareTotal">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 占比 + 排行 -->
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.05*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="支出都花在哪了" Style="{StaticResource H2}" Margin="0,0,0,10"/>
+                            <local:DonutChart x:Name="chartDonut" Height="250"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="分类排行" Style="{StaticResource H2}" Margin="0,0,0,10"/>
+                            <local:HBarChart x:Name="chartRank" Height="250"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- 月度趋势 -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <TextBlock Text="每月收支对比" Style="{StaticResource H2}"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Border Width="10" Height="10" CornerRadius="3" Background="{DynamicResource ExpenseBrush}"
+                                        VerticalAlignment="Center"/>
+                                <TextBlock Text="支出" Style="{StaticResource Muted}" Margin="6,0,14,0"/>
+                                <Border Width="10" Height="10" CornerRadius="3" Background="{DynamicResource IncomeBrush}"
+                                        VerticalAlignment="Center"/>
+                                <TextBlock Text="收入" Style="{StaticResource Muted}" Margin="6,0,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <local:BarChart x:Name="chartMonthly" Height="230"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 结余走势 + 账户 -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.35*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="累计结余走势" Style="{StaticResource H2}" Margin="0,0,0,8"/>
+                            <local:LineChart x:Name="chartBalance" Height="210"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="账户余额" Style="{StaticResource H2}" Margin="0,0,0,10"/>
+                            <ItemsControl x:Name="listAccounts"/>
+                            <Border Style="{StaticResource Divider}"/>
+                            <Grid>
+                                <TextBlock Text="净资产" Style="{StaticResource Body}"/>
+                                <TextBlock x:Name="txtAssets" Style="{StaticResource Money}" FontSize="16"
+                                           HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

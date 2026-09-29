@@ -1,0 +1,381 @@
+<UserControl x:Class="MoneyTracker.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource UiFont}" Background="{DynamicResource BgSoftBrush}">
+    <Grid Margin="22,16,22,20">
+        <TabControl x:Name="tabs" Background="Transparent" BorderThickness="0">
+
+            <!-- ==================== 外观 ==================== -->
+            <TabItem Header="外观主题">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
+                    <StackPanel>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="界面主题" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10"
+                                           Text="点一下就换，马上生效，不用重启。下面每个色块就是那套主题的底色、卡片色和强调色。"/>
+                                <WrapPanel x:Name="panelThemes"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="自定义强调色" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10"
+                                           Text="不想用主题自带的颜色，就自己挑一个。按钮、选中项、图表的主色都会跟着变。"/>
+                                <WrapPanel x:Name="panelAccents"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <TextBlock Text="或者直接填色号" Style="{StaticResource Muted}"
+                                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="txtAccentHex" Width="120" FontFamily="{StaticResource NumFont}"
+                                             ToolTip="比如 #2F6FED"/>
+                                    <Button Style="{StaticResource Btn}" Content="用这个颜色" Margin="10,0,0,0"
+                                            Click="ApplyAccent_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="恢复主题默认" Margin="8,0,0,0"
+                                            Click="ResetAccent_Click"/>
+                                </StackPanel>
+
+                                <Border Style="{StaticResource Divider}"/>
+                                <TextBlock x:Name="txtThemeNow" Style="{StaticResource Muted}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="显示偏好" Style="{StaticResource H2}" Margin="0,0,0,10"/>
+                                <CheckBox x:Name="chkRedExpense" Content="支出用红色、收入用绿色显示" Margin="0,4,0,8"
+                                          Click="Pref_Changed"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="货币符号" Style="{StaticResource Body}" VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+                                    <TextBox x:Name="txtCurrency" Width="70" TextChanged="Pref_Changed"/>
+                                    <TextBlock Style="{StaticResource Muted}" VerticalAlignment="Center"
+                                               Margin="10,0,0,0" Text="（默认 ¥，也可以填 USD、€）"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 字体 -->
+                        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                            <StackPanel>
+                                <TextBlock Text="字体" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                           Text="系统默认那套雅黑笔画偏方硬，看久了眼睛累。这里换一套更顺眼的，点一下立刻生效。"/>
+                                <WrapPanel x:Name="panelFonts"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <TextBlock Text="整体字号" Style="{StaticResource Muted}"
+                                               VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Slider x:Name="sldFontScale" Width="220" Minimum="85" Maximum="125"
+                                            Value="100" VerticalAlignment="Center"
+                                            ValueChanged="FontScale_Changed"/>
+                                    <TextBlock x:Name="txtFontScale" Style="{StaticResource Muted}"
+                                               VerticalAlignment="Center" Margin="12,0,0,0" Width="46"/>
+                                </StackPanel>
+
+                                <!-- 自带字体文件：内置那几套都不合意时用这个 -->
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,16,0,0" TextWrapping="Wrap"
+                                           Text="上面几套都不合意，也可以直接用你自己下载的字体文件（.ttf / .otf）。挑一个文件就行，字体不会被复制进程序，只是记住它的位置。"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,9,0,0">
+                                    <Button Style="{StaticResource Btn}" Content="选字体文件"
+                                            Padding="18,9" Click="PickFontFile_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="不用了"
+                                            Padding="18,9" Margin="8,0,0,0" Click="ClearFontFile_Click"/>
+                                </StackPanel>
+                                <TextBlock x:Name="txtFontFile" Style="{StaticResource Muted}"
+                                           Margin="0,9,0,0" TextWrapping="Wrap" Text=""/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 自定义背景图 -->
+                        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                            <StackPanel>
+                                <TextBlock Text="自定义背景图" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                           Text="挑一张自己的图当背景。程序会先把它缩小再模糊，所以再大的图也不会拖慢速度。侧边栏保持实色，只有内容区透出背景。"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Style="{StaticResource BtnPrimary}" Content="选择图片"
+                                            Padding="18,9" Click="PickBg_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="不用背景图"
+                                            Padding="18,9" Margin="8,0,0,0" Click="ClearBg_Click"/>
+                                </StackPanel>
+                                <TextBlock x:Name="txtBgPath" Style="{StaticResource Muted}"
+                                           Margin="0,10,0,0" TextWrapping="Wrap"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <TextBlock Text="模糊程度" Style="{StaticResource Muted}"
+                                               VerticalAlignment="Center" Width="72"/>
+                                    <Slider x:Name="sldBgBlur" Width="220" Minimum="0" Maximum="60" Value="18"
+                                            VerticalAlignment="Center" ValueChanged="BgBlur_Changed"/>
+                                    <TextBlock x:Name="txtBgBlur" Style="{StaticResource Muted}"
+                                               VerticalAlignment="Center" Margin="12,0,0,0" Width="52"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="淡出程度" Style="{StaticResource Muted}"
+                                               VerticalAlignment="Center" Width="72"/>
+                                    <Slider x:Name="sldBgDim" Width="220" Minimum="0" Maximum="95" Value="62"
+                                            VerticalAlignment="Center" ValueChanged="BgDim_Changed"/>
+                                    <TextBlock x:Name="txtBgDim" Style="{StaticResource Muted}"
+                                               VerticalAlignment="Center" Margin="12,0,0,0" Width="52"/>
+                                </StackPanel>
+
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,8,0,0" TextWrapping="Wrap"
+                                           Text="淡出程度越大，背景越淡、文字越清楚。觉得图太抢戏就往右拉；模糊调太大会看不出是什么图，15 到 25 之间一般最舒服。"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ==================== 数据 ==================== -->
+            <TabItem Header="数据导入导出">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
+                    <StackPanel>
+
+                        <!-- 导入 -->
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="从 CSV / 账单文件导入" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                           Text="支持支付宝账单、微信支付账单，也支持任何表格里导出的普通 CSV。程序会自动认表头、认收支、去掉重复的，遇到「不计收支」和退款失败的记录会跳过。"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Style="{StaticResource BtnPrimary}" Content="选择文件导入" Padding="18,9"
+                                            Click="ImportFile_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="导入整个文件夹" Padding="18,9"
+                                            Margin="8,0,0,0" Click="ImportFolder_Click"
+                                            ToolTip="把这个文件夹里所有 csv 都导进来"/>
+                                    <Button Style="{StaticResource Btn}" Content="查看导入规则" Padding="18,9"
+                                            Margin="8,0,0,0" Click="ShowImportHelp_Click"/>
+                                </StackPanel>
+
+                                <Border x:Name="boxImportResult" Style="{StaticResource Card}" Margin="0,12,0,0"
+                                        Background="{DynamicResource Surface2Brush}" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <TextBlock x:Name="txtImportTitle" Style="{StaticResource H2}"/>
+                                        <TextBlock x:Name="txtImportDetail" Style="{StaticResource Body}"
+                                                   Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                        <ItemsControl x:Name="listImportSkip" Margin="0,8,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 导出 -->
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="导出成文件" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                           Text="导出的都是真正的 Excel / Word 文件，不是改后缀的文本。用 Excel、WPS、Word 都能直接打开继续编辑。"/>
+
+                                <WrapPanel>
+                                    <Button Style="{StaticResource BtnPrimary}" Content="导出 Excel（.xlsx）"
+                                            Padding="18,9" Margin="0,0,8,8" Click="ExportXlsx_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="导出 Word（.docx）"
+                                            Padding="18,9" Margin="0,0,8,8" Click="ExportDocx_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="导出 CSV"
+                                            Padding="18,9" Margin="0,0,8,8" Click="ExportCsv_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="整库备份（.json）"
+                                            Padding="18,9" Margin="0,0,8,8" Click="ExportJson_Click"/>
+                                </WrapPanel>
+
+                                <Border Style="{StaticResource Divider}"/>
+                                <TextBlock Text="Excel 里会有 5 张表：明细、分类汇总、月度汇总、账户流水、账户余额。Word 里是有标题、总览、排行和明细表的完整报表。"
+                                           Style="{StaticResource Muted}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 程序内备份与回档 -->
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="备份与回档" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                           Text="程序自己留快照，不用你手动导出文件。改错了、记错了、导入把数据搞乱了，点一下就能回到之前某一刻。回档之前程序会先自动留一份「回档前自动备份」，所以回档本身也能反悔。"/>
+                                <Button Style="{StaticResource BtnPrimary}" Content="打开备份与回档"
+                                        Padding="18,9" HorizontalAlignment="Left" Click="OpenBackup_Click"/>
+                                <TextBlock x:Name="txtBackupInfo" Style="{StaticResource Muted}"
+                                           Margin="0,10,0,0" TextWrapping="Wrap" Text=""/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 恢复 / 重置 -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="恢复与重置" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                           Text="从之前备份的 json 恢复会把当前数据整个换成备份里的（当前数据会自动另存一份，不怕）。这是给「手里已经有导出文件」的情况用的；只是想在程序里退一步，用上面的备份与回档更省事。"/>
+
+                                <WrapPanel>
+                                    <Button Style="{StaticResource Btn}" Content="从备份恢复"
+                                            Padding="18,9" Margin="0,0,8,8" Click="Restore_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="生成示例数据"
+                                            Padding="18,9" Margin="0,0,8,8" Click="Demo_Click"
+                                            ToolTip="生成 4 个月的假数据，用来看看报表长什么样"/>
+                                    <Button Style="{StaticResource BtnDanger}" Content="清空所有记录"
+                                            Padding="18,9" Margin="0,0,8,8" Click="Clear_Click"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ==================== 自动记账规则 ==================== -->
+            <TabItem Header="自动记账规则">
+                <Grid Margin="0,14,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="规则怎么用" Style="{StaticResource H2}"/>
+                            <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                       Text="记账时如果没选分类，程序会拿商户名和备注去匹配这些关键词，命中就自动归到对应分类。导入账单时也走同一套规则。一条规则里可以用竖线分隔多个关键词。"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource BtnPrimary}" Content="新增规则" Padding="18,9"
+                                        Click="AddRule_Click"/>
+                                <Button Style="{StaticResource Btn}" Content="对历史记录重跑一遍" Padding="18,9"
+                                        Margin="8,0,0,0" Click="RerunRules_Click"/>
+                                <Button Style="{StaticResource Btn}" Content="恢复预置规则" Padding="18,9"
+                                        Margin="8,0,0,0" Click="ResetRules_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="2">
+                        <DataGrid x:Name="gridRules" MouseDoubleClick="Rule_DoubleClick">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="关键词" Binding="{Binding Keyword}" Width="*"/>
+                                <DataGridTextColumn Header="分类" Binding="{Binding Category}" Width="110"/>
+                                <DataGridTextColumn Header="子分类" Binding="{Binding Sub}" Width="110"/>
+                                <DataGridTextColumn Header="类型" Binding="{Binding TypeText}" Width="70"/>
+                                <DataGridTextColumn Header="优先级" Binding="{Binding Priority}" Width="70"/>
+                                <DataGridTextColumn Header="命中次数" Binding="{Binding Hits}" Width="80"/>
+                            </DataGrid.Columns>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="修改这条规则" Click="RuleEdit_Click"/>
+                                    <MenuItem Header="删除这条规则" Click="RuleDelete_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- ==================== 账户 ==================== -->
+            <TabItem Header="账户">
+                <Grid Margin="0,14,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="账户" Style="{StaticResource H2}"/>
+                            <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                       Text="记每一笔时选账户，程序就能算出每个账户还剩多少钱。初始余额填「开始记账那一刻」这个账户里的钱。"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource BtnPrimary}" Content="新增账户" Padding="18,9"
+                                        Click="AddAccount_Click"/>
+                                <TextBlock x:Name="txtAssets" Style="{StaticResource Body}" VerticalAlignment="Center"
+                                           Margin="18,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="2">
+                        <DataGrid x:Name="gridAccounts" MouseDoubleClick="Account_DoubleClick">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="账户名" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="类型" Binding="{Binding Kind}" Width="110"/>
+                                <DataGridTextColumn Header="初始余额" Binding="{Binding Initial}" Width="120"/>
+                                <DataGridTextColumn Header="当前余额" Binding="{Binding Now}" Width="120"/>
+                                <DataGridTextColumn Header="计入净资产" Binding="{Binding InAssets}" Width="100"/>
+                            </DataGrid.Columns>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="修改这个账户" Click="AccountEdit_Click"/>
+                                    <MenuItem Header="删除这个账户" Click="AccountDelete_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- ==================== 分类 ==================== -->
+            <TabItem Header="分类">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
+                    <StackPanel>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="收支分类" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                           Text="分类完全由你自己定，不是写死的。想加个「生活费」就加，想改名字就改——改名字的时候，已经记过的账会跟着一起改，不用一条条手动修。"/>
+                                <Button Style="{StaticResource BtnPrimary}" Content="打开分类管理"
+                                        Padding="18,9" HorizontalAlignment="Left" Click="OpenCategory_Click"/>
+                                <TextBlock x:Name="txtCatInfo" Style="{StaticResource Muted}"
+                                           Margin="0,10,0,0" TextWrapping="Wrap" Text=""/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="二级分类" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"
+                                           Text="每个一级分类下面都能再分细一点，比如「餐饮」下面挂「外卖」「早餐」「午餐」。二级分类可以不填，不填照样能记账。"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ==================== 关于 ==================== -->
+            <TabItem Header="关于">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
+                    <StackPanel>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="记账本 · 桌面版" Style="{StaticResource H1}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"
+                                           Text="一个用 .NET 8 + WPF 写的原生 Windows 程序。没有浏览器内核、没有 Electron 外壳、不联网、不上传任何数据。"/>
+                                <Border Style="{StaticResource Divider}"/>
+                                <TextBlock x:Name="txtVersion" Style="{StaticResource Body}"/>
+                                <TextBlock x:Name="txtRuntime" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="你的数据在哪" Style="{StaticResource H2}"/>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,10" TextWrapping="Wrap"
+                                           Text="所有记录都只存在下面这个文件里，纯文本 json。想备份就直接复制这个文件，想搬到别的电脑也复制它就行。程序不写注册表、不写系统目录，整个文件夹删掉就一点痕迹都不剩。"/>
+                                <TextBox x:Name="txtDataPath" IsReadOnly="True" FontFamily="{StaticResource NumFont}"
+                                         FontSize="12"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource Btn}" Content="打开数据文件夹" Click="OpenDataDir_Click"/>
+                                    <Button Style="{StaticResource Btn}" Content="复制路径" Margin="8,0,0,0"
+                                            Click="CopyPath_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="快捷键" Style="{StaticResource H2}" Margin="0,0,0,8"/>
+                                <TextBlock Style="{StaticResource Body}" TextWrapping="Wrap"
+                                           Text="Alt+1 记账　Alt+2 明细　Alt+3 报表　Alt+4 预算　Alt+5 分析　Alt+6 设置&#10;在记账页可以直接敲数字键输入金额，回车保存"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

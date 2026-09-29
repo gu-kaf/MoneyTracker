@@ -1,0 +1,24 @@
+# 编译产物
+bin/
+obj/
+publish/
+
+# 你自己的账目数据，绝对不要传上去
+data/
+*.bak
+
+# 打包好的可执行文件（63 MB，仓库里不放二进制）
+*.exe
+*.7z
+*.zip
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+
+# 我自检和出图留下的东西
+_shots/
+_verify*/
+*-log.txt

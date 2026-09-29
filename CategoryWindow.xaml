@@ -1,0 +1,106 @@
+<Window x:Class="MoneyTracker.CategoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="分类管理" Height="660" Width="840"
+        MinHeight="540" MinWidth="720"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BgBrush}" FontFamily="{DynamicResource UiFont}">
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+            <TextBlock Text="分类管理" Style="{StaticResource H1}"/>
+            <TextBlock Style="{StaticResource Muted}" Margin="0,5,0,0" TextWrapping="Wrap"
+                       Text="分类完全由你自己定。想加个「生活费」，点左边的一级分类「添加」就行；每一项下面还能再分二级分类。改名字的时候，已经记过的账会跟着一起改。"/>
+        </StackPanel>
+
+        <!-- 支出 / 收入 -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button x:Name="btnExpense" Style="{StaticResource ChipOn}" Content="支出分类"
+                    Padding="18,8" Click="SwitchExpense_Click"/>
+            <Button x:Name="btnIncome" Style="{StaticResource Chip}" Content="收入分类"
+                    Padding="18,8" Margin="8,0,0,0" Click="SwitchIncome_Click"/>
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 一级分类 -->
+            <Border Grid.Column="0" Style="{StaticResource Card}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="一级分类" Style="{StaticResource H2}"
+                               Margin="0,0,0,10"/>
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Style="{StaticResource Btn}" Content="添加" Padding="14,7" Click="AddCat_Click"/>
+                        <Button Style="{StaticResource Btn}" Content="改名" Padding="14,7" Margin="6,0,0,0"
+                                Click="RenameCat_Click"/>
+                        <Button Style="{StaticResource BtnDanger}" Content="删除" Padding="14,7" Margin="6,0,0,0"
+                                Click="DeleteCat_Click"/>
+                        <Button Style="{StaticResource BtnGhost}" Content="↑" Padding="12,7" Margin="6,0,0,0"
+                                Click="UpCat_Click" ToolTip="往上挪"/>
+                        <Button Style="{StaticResource BtnGhost}" Content="↓" Padding="12,7" Margin="4,0,0,0"
+                                Click="DownCat_Click" ToolTip="往下挪"/>
+                    </StackPanel>
+                    <ListBox x:Name="lstCat" ItemContainerStyle="{StaticResource RowItem}"
+                             SelectionChanged="Cat_Selected">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Name}" FontSize="{DynamicResource FontBody}"
+                                               Foreground="{DynamicResource TextBrush}"/>
+                                    <TextBlock Text="{Binding SubText}" Style="{StaticResource Muted}"
+                                               Margin="9,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- 二级分类 -->
+            <Border Grid.Column="2" Style="{StaticResource Card}">
+                <DockPanel>
+                    <TextBlock x:Name="txtSubTitle" DockPanel.Dock="Top" Text="二级分类"
+                               Style="{StaticResource H2}" Margin="0,0,0,10"/>
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Style="{StaticResource Btn}" Content="添加" Padding="14,7" Click="AddSub_Click"/>
+                        <Button Style="{StaticResource Btn}" Content="改名" Padding="14,7" Margin="6,0,0,0"
+                                Click="RenameSub_Click"/>
+                        <Button Style="{StaticResource BtnDanger}" Content="删除" Padding="14,7" Margin="6,0,0,0"
+                                Click="DeleteSub_Click"/>
+                        <Button Style="{StaticResource BtnGhost}" Content="↑" Padding="12,7" Margin="6,0,0,0"
+                                Click="UpSub_Click" ToolTip="往上挪"/>
+                        <Button Style="{StaticResource BtnGhost}" Content="↓" Padding="12,7" Margin="4,0,0,0"
+                                Click="DownSub_Click" ToolTip="往下挪"/>
+                    </StackPanel>
+                    <Grid>
+                        <ListBox x:Name="lstSub" ItemContainerStyle="{StaticResource RowItem}"/>
+                        <TextBlock x:Name="txtSubHint" Style="{StaticResource Muted}" TextWrapping="Wrap"
+                                   VerticalAlignment="Top" Margin="2,4,0,0" Visibility="Collapsed"
+                                   Text="二级分类可以不填。左边选一个一级分类，就能在这里给它加细分。"/>
+                    </Grid>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="3" Margin="0,16,0,0">
+            <Button Style="{StaticResource BtnGhost}" Content="恢复出厂分类" Padding="16,9"
+                    HorizontalAlignment="Left" Click="Reset_Click"
+                    ToolTip="把分类名单恢复成刚装好时的样子，你自己加的会没掉（记录不受影响）"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource Btn}" Content="取消" Padding="22,9" Click="Cancel_Click"/>
+                <Button Style="{StaticResource BtnPrimary}" Content="保存" Padding="28,9" Margin="10,0,0,0"
+                        Click="Ok_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
