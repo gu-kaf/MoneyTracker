@@ -13,6 +13,17 @@
     <AssemblyTitle>记账本 · 桌面版</AssemblyTitle>
     <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <!-- App.xaml 在 src 下，SDK 默认只在根目录找它，所以关掉默认规则手动指定 -->
+    <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="src\App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <!-- 默认的 Page 通配会把 src\App.xaml 也算进来，会导致重复定义 -->
+    <Page Remove="src\App.xaml" />
+  </ItemGroup>
 
 </Project>
