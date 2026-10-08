@@ -2,9 +2,8 @@
 
 # 记账本
 
-**一个真正的 Windows 桌面记账程序**
+**一个 Windows 桌面记账程序**
 
-（注意：纯 AI 软件）
 
 [![平台](https://img.shields.io/badge/平台-Windows-0078D4?logo=windows&logoColor=white)]()
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)]()
